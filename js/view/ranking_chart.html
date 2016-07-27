@@ -1,0 +1,50 @@
+<div class="rank-container">
+	<div>
+		<button ng-click="showRanking()" class="show-button">显示游戏数据</button>
+		<button ng-click="uploadRanking()" class="show-button">上传游戏数据</button>
+	</div>
+	<table class="rank-number">
+		<tr class="rank-header">
+		<th>#</th>
+		</tr >
+		<tr class="rank-row" ng-repeat="game in allGames.paidGames">
+		<td ng-bind="$index+1">
+		</td>
+		</tr>
+	</table>
+	<table class="rank-table">
+		<tr class="rank-header">
+		<th>付费游戏</th>
+		</tr >
+		<tr class="rank-row" ng-repeat="game in allGames.paidGames">
+		<td >
+			<img class="large-image" ng-src="{{game['im:image'][2].label}}" />
+			{{game["im:name"].label}}
+
+		</td>
+		</tr>
+	</table>
+	<table class="rank-table">
+		<tr class="rank-header">
+		<th>免费游戏</th>
+		</tr >
+		<tr class="rank-row" ng-repeat="game in allGames.freeGames">
+		<td >
+			<img class="large-image" ng-src="{{game['im:image'][2].label}}" />
+			{{game["im:name"].label}}
+
+		</td>
+		</tr>
+	</table>
+	<table class="rank-table">
+		<tr class="rank-header">
+		<th>畅销游戏</th>
+		</tr >
+		<tr class="rank-row" ng-repeat="game in allGames.hotGames">
+		<td >
+			<img class="large-image" ng-src="{{game['im:image'][2].label}}" />
+			{{game["im:name"].label}}
+		</td>
+		</tr>
+	</table>
+</div>
