@@ -2,9 +2,11 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
+var autoCrawler = require('./autoCrawling.js');
 var path = require('path');
 var bcrypt = require('bcrypt');
 var favicon = require('serve-favicon');
+var schedule = require('node-schedule');
 
 
 var app = express();
@@ -70,13 +72,14 @@ app.post('/rankInfo_hot', function (req,res) {
 
 });
 
-app.get('/getDataInfo/:date', function(req, res){
-	var date = req.params.date;
+app.get('/getDataInfo', function(req, res){
+	var date = req.query.date;
+	var dbTable = req.query.table;
 	// var where = {
 	// 	product_gender: gender
 	// };
 
-	db.sequelize.query("SELECT * from rankInfo_hots where uploadDate like '%"+date+"%'").spread(function(results, metadata){
+	db.sequelize.query("SELECT * from "+dbTable+" where uploadDate like '%"+date+"%'").spread(function(results, metadata){
     	console.log(results);
     	res.json(results);
 	}, function (e) {
@@ -127,7 +130,12 @@ app.get('/getDataInfo/:date', function(req, res){
 // 	});
 // });
 
-db.sequelize.sync({force:true}).then(function () {
+var task = schedule.scheduleJob({hour: 0, minute: 10, dayOfWeek: [0,1,2,3,4,5,6]}, function(){
+  console.log('Time for new Data from App Store!');
+  autoCrawler.saveDataToDB();
+});
+
+db.sequelize.sync().then(function () {
 		app.listen(PORT, function () {
 		console.log('Express listening on port '+ PORT + '!');
 	});

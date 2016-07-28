@@ -1,8 +1,10 @@
 angular.module('myApp').controller('rankingController', ['$scope','$http', 
   function ($scope, $http) {
       $scope.allGames = {};
+      $scope.allGames_seven = {};
       $scope.index = 1;
       var freeGameEntry,paidGameEntry,hotGameEntry;
+      var previousNdaysOfData;
 
       /*显示数据*/
       $scope.showRanking= function () {
@@ -34,7 +36,19 @@ angular.module('myApp').controller('rankingController', ['$scope','$http',
           });
       }
 
-       /*上传数据*/
+      /*显示持续在榜单的数据*/
+      $scope.show7DaysGames = function(days){
+        var sevenDaysData_paid = getPeriodDataSet("rankInfo_paids", days);
+        var sevenDaysData_free = getPeriodDataSet("rankInfo_frees", days);
+        var sevenDaysData_hot = getPeriodDataSet("rankInfo_hots", days);
+
+        $scope.allGames_seven.freeGames =stayWithinTimePeriod(sevenDaysData_free,days);
+        $scope.allGames_seven.paidGames =stayWithinTimePeriod(sevenDaysData_paid,days);
+        $scope.allGames_seven.hotGames =stayWithinTimePeriod(sevenDaysData_hot,days);
+       
+      }
+
+      /*上传数据*/
       $scope.uploadRanking = function (){
         
         function postInfo(gameData, i , type , postName) {
@@ -70,9 +84,66 @@ angular.module('myApp').controller('rankingController', ['$scope','$http',
         
       }
 
+      function getPeriodDataSet(tableName, period){
+        var dataSet = [];
+        function getData(period, i){
+          if(i >= period){
+            return dataSet;
+          }
+          var d = new Date();
+            d.setDate(d.getDate() - period);
+            var curr_date = d.getDate();
+            var curr_month = d.getMonth();
+            var curr_year = d.getFullYear();
+            var newDate = curr_month+"-"+curr_date+"-"+curr_year+"";
+            
+            $http.get("/getDataInfo?date="+newDate+"&table="+tableName).success(function(data, status) {
+              // console.log("Successful download "+ data); 
+              dataSet.push(data);
+              getData(period,i+1);  
+            }).error(function(data, status) {
+                alert("Data download failed!")
+            });
+        }
+        return getData(period, 0);
+      }
+
+      /*从dataset里取得 period 天数里一直在排行榜上的游戏，return数据为array，array unit包涵所有游戏信息*/
+
+      function stayWithinTimePeriod(dataSet, period){
+        var hashMap = parseDataArrayIntoObject(dataSet);
+        var result = [];
+
+        for( var key in Object.keys(hashMap)){
+          if(hashMap[Object.keys(hashMap)[key]].count === period){
+            result.push(hashMap[Object.keys(hashMap)[key]].content);
+          }
+        }
+        return result;
+      }
+
+      /*将dataset数组转化为记录出现次数与包涵游戏数据的object类型，并return这个Object*/
+
+      function parseDataArrayIntoObject(array){
+        var result = {};
+        for(var i=0;i<array.length;i++){
+          for(var j=0;j<array[i].length;j++){
+            var tem = result[array[i][j].gameId];
+            if(tem == undefined){
+              result[array[i][j].gameId] = {};
+              result[array[i][j].gameId].count = 1;
+              result[array[i][j].gameId].content = array[i][j];
+            }else{
+              result[array[i][j].gameId].count = tem.count+1;
+            }
+          }
+        }
+        return result;
+      }
+
       /*从数据库中得取离当前时间 period 天数的数据*/
 
-      $scope.getDataFromDB = function (period){
+      $scope.getDataFromDB = function (tableName, period){
           var d = new Date();
           d.setDate(d.getDate() - period);
           var curr_date = d.getDate();
@@ -80,7 +151,7 @@ angular.module('myApp').controller('rankingController', ['$scope','$http',
           var curr_year = d.getFullYear();
           var newDate = curr_month+"-"+curr_date+"-"+curr_year+"";
         
-          $http.get("/getDataInfo/"+newDate).success(function(data, status) {
+          $http.get("/getDataInfo?date="+newDate+"&table="+tableName).success(function(data, status) {
             console.log("Successful download "+ data);    
           }).error(function(data, status) {
              alert("Data download failed!")
@@ -122,7 +193,5 @@ angular.module('myApp').controller('rankingController', ['$scope','$http',
 
         return result;
       }
-
-
   }
 ]);
