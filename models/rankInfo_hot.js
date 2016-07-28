@@ -12,6 +12,10 @@ module.exports = function (sequelize, DataTypes) {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
+		gameId: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
 		imgUrl: {
 			type: DataTypes.STRING,
 			allowNull: false,

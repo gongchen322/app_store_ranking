@@ -38,7 +38,7 @@ app.get('/', function(req, res) {
 
 //Add new TripInfo data
 app.post('/rankInfo_free', function (req,res) {
-	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','imgUrl','link', 'type', 'price', 'company','releaseDate');
+	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','gameId','imgUrl','link', 'type', 'price', 'company','releaseDate');
 
 	db.rankInfo_free.create(body).then(function (data) {
 			res.json(data.toJSON());
@@ -49,7 +49,7 @@ app.post('/rankInfo_free', function (req,res) {
 });
 
 app.post('/rankInfo_paid', function (req,res) {
-	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','imgUrl','link', 'type', 'price', 'company','releaseDate');
+	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','gameId','imgUrl','link', 'type', 'price', 'company','releaseDate');
 
 	db.rankInfo_paid.create(body).then(function (data) {
 			res.json(data.toJSON());
@@ -60,7 +60,7 @@ app.post('/rankInfo_paid', function (req,res) {
 });
 
 app.post('/rankInfo_hot', function (req,res) {
-	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','imgUrl','link', 'type', 'price', 'company','releaseDate');
+	var body = _.pick(req.body, 'uploadDate', 'rank', 'name','gameId','imgUrl','link', 'type', 'price', 'company','releaseDate');
 
 	db.rankInfo_hot.create(body).then(function (data) {
 			res.json(data.toJSON());
@@ -70,7 +70,19 @@ app.post('/rankInfo_hot', function (req,res) {
 
 });
 
+app.get('/getDataInfo/:date', function(req, res){
+	var date = req.params.date;
+	// var where = {
+	// 	product_gender: gender
+	// };
 
+	db.sequelize.query("SELECT * from rankInfo_hots where uploadDate like '%"+date+"%'").spread(function(results, metadata){
+    	console.log(results);
+    	res.json(results);
+	}, function (e) {
+		res.status(500).send();
+	});
+});
 // //Add users
 // app.post('/users', function (req, res) {
 // 	var body = _.pick(req.body, 'name','email', 'password');
