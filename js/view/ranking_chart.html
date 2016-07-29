@@ -51,7 +51,7 @@
 </div>
 <div class="rank-container2">
 	<div>
-		<button ng-click="show7DaysGames(0)" class="show-button">显示7天都在榜内游戏</button>
+		<button ng-click="show7DaysGames(1)" class="show-button">显示7天都在榜内游戏</button>
 	</div>
 	<table class="rank-number">
 		<tr class="rank-header">
@@ -66,7 +66,7 @@
 		<tr class="rank-header">
 		<th>付费游戏</th>
 		</tr >
-		<tr class="rank-row" ng-repeat="game in allGames_seven.paidGames">
+		<tr class="rank-row" ng-repeat="game in allGames_seven.paidGames ">
 		<td >
 			<img class="large-image" ng-src="{{game.imgUrl}}" />
 			{{game.name}}
@@ -82,7 +82,6 @@
 		<td >
 			<img class="large-image" ng-src="{{game.imgUrl}}" />
 			{{game.name}}
-
 		</td>
 		</tr>
 	</table>
